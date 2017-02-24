@@ -1,6 +1,20 @@
-from math import sin, pi
+"""
+интерполяция функции на таблице значений с помощью полинома Ньютона
+(с учетом экстраполяции)
+"""
+
+from math import sin, pi, factorial, cos
 def f(x):
-   return sin(pi/6 * x)
+   return sin(x)
+def df(x, n):
+    if n % 4 == 0:
+        return sin(x)
+    elif n % 4 == 1:
+        return cos(x)
+    elif n % 4 == 2:
+        return -sin(x)
+    elif n % 4 == 3:
+        return -cos(x)
 
 def generate_table(start, end, step):
     table = []
@@ -19,14 +33,11 @@ def getCoefPolynomByConfiguration(conf, n):
         newconf.append(tmp)
     return newconf
 
-
-
 def interp(x, n, table):
     def binpoisk(x):
         a = 0
         b = len(table[0])
-        while(b - a > 1):
-            
+        while(b - a > 1):       
             m = int((a + b) / 2)
             #print(a, b, m, table[0][m])
             if table[0][m] > x:
@@ -64,7 +75,6 @@ def interp(x, n, table):
         for j in range(0, i):
             #print(type(x))
             #print(type(conf[0][j]))
-
             t = x - conf[0][j]
             tmp *= t
         y += tmp * coef[0]
@@ -72,15 +82,29 @@ def interp(x, n, table):
         for i in coef:
             conf[1][j] = i
             j += 1
-    return y
+
+    tmp *= x - conf[0][n]
+    print(tmp)
+
+    eps = abs(tmp) / factorial(n + 1)
+    print(conf[0])
+    df_conf = [abs(df(conf[0][i], n+1)) for i in range(0, len(conf[0]))]
+    print(df_conf)
+    maxd = max(df_conf)
+    eps *= maxd
+
+    return y, eps
 
 n = int(input("Введите степень полинома для интерполяции: "))
 x = float(input("x = "))
 
-table = generate_table(-3, 3, 1)
+table = generate_table(-5, 5, 1)
 #for i in table:
 #    print(i)
 
-y = interp(x, n, table)
-print(y)
-print(f(x))
+y, eps = interp(x, n, table)
+
+print("Результат ", y)
+print("Правильный ответ ", f(x))
+print("\nПогрешность ", eps)
+print("Абсолютная погрешность ", abs(y - f(x)))

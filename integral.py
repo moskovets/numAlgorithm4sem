@@ -4,12 +4,16 @@
 """
 from math import sin, cos, exp
 
-def half_div_method(a, b, eps, c1, c2, c3):
+def half_div_method(a, b, eps, x):
     def f(y):
+        c1 = exp(x**3)
+        c2 = -2*(x**3) + 2
+        c3 = c2 + x**6
         return c1 - exp(y) * (c3 + c2 * y + y*y)
     x1 = a
     x2 = b
-    while abs(x2 - x1) > eps:# and it < max_iter:
+    eps = (b - a) * eps
+    while abs(x2 - x1) > eps:
         mid = (x1 + x2) / 2
         fm = f(mid)
         if(fm == 0):
@@ -23,10 +27,7 @@ def half_div_method(a, b, eps, c1, c2, c3):
     return x1
 
 def f(x, eps):
-    c1 = exp(x**3)
-    c2 = -2*(x**3) + 2
-    c3 = c2 + x**6
-    return half_div_method(-10, 10, eps, c1, c2, c3)
+    return half_div_method(-10, 10, eps, x)
 
 def trap(n, eps):
     h = (b - a) / n
@@ -42,15 +43,16 @@ def trap(n, eps):
 #eps = float(input("Введите точность вычислений eps = "))
 a = 0
 b = 2
-eps = 0.0001
+eps_otn = 0.0001
+eps = (b - a) * eps_otn
 
 n = 1
-I1 = trap(n, eps)
-I2 = trap(n * 2, eps)
+I1 = trap(n, eps_otn)
+I2 = trap(n * 2, eps_otn)
 n *= 2
-while abs(I2 - I1) > eps:
+while abs(I2 - I1)  > eps:
     I1, I2 = I2, I1
     n *= 2
-    I2 = trap(n, eps)
+    I2 = trap(n, eps_otn)
 
 print("Значение определенного интеграла", '{:9.5f}'.format(I2))
