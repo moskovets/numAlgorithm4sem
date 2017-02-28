@@ -10,7 +10,7 @@ def f1y(x, y):
 	x3 = x**3
 	return exp(x3-y) - x3 * (x3 - 2 * y - 2) - y * y - 2 * y - 2
 def f2y(x, y):
-	return x*x*exp(- y)  + y * exp(-y) - exp(x*x) * log(x*x + y*y)
+	return x*x*exp(- y)  + y * exp(-y) - exp(x*x) * log(x*x + y)
 
 
 def half_div_method(a, b, eps, x, f):
@@ -135,7 +135,7 @@ table3.append([])
 for i in range(0, len(table1[1])):
     table3[1].append(table1[0][i])
     table3[0].append(table2[1][i] - table1[1][i])
-    #print(table3[0][i], table3[1][i])
+#    print(table3[0][i], table3[1][i])
 
 #print()
 table3 = my_sort(table3)
@@ -148,4 +148,6 @@ n = 4
 x = interp(x, n, table3)
 
 print("Результат x = ", x)
-print("y = ", f1(x), f2(x))
+y1 = f1(x)
+y2 = f2(x)
+print("y = ", y1 + (y2 - y1) / 2)
