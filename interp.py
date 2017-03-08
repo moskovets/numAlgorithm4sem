@@ -55,7 +55,7 @@ def interp(x, n, table):
         #print(x)
         mid = binpoisk(x)
         #print("mid:", mid)
-        left = max(0, mid - int((n + 1)/2))
+        left = max(0, mid - int(n/2))
         right = min(len(table[0]) - 1, left + n)
         left = max(0, right - n)
         for i in range(left, right + 1):
@@ -84,12 +84,12 @@ def interp(x, n, table):
             j += 1
 
     tmp *= x - conf[0][n]
-    print(tmp)
+    #print(tmp)
 
     eps = abs(tmp) / factorial(n + 1)
-    print(conf[0])
+    #print(conf[0])
     df_conf = [abs(df(conf[0][i], n+1)) for i in range(0, len(conf[0]))]
-    print(df_conf)
+    #print(df_conf)
     maxd = max(df_conf)
     eps *= maxd
 

@@ -7,7 +7,8 @@ eps_const = 0.00001
 eps_otn = 0.0001
 def f_0(x, y):
 	return x*x + y*y
-
+def f_1(x, y):
+	return sin(x) + cos(y*y) + x * x - y * y
 #[[x, [y,y,y,y], [z,z,z,z]], ]
 def generate_table(f, parx, pary):
     startx, endx, stepx = parx
@@ -47,7 +48,7 @@ def find_list_x(table, x, n):
     mid = a
 
     res = []
-    left = max(0, mid - int((n + 1)/2))
+    left = max(0, mid - int(n/2))
     right = min(len(table) - 1, left + n)
     left = max(0, right - n)
     for i in range(left, right + 1):
@@ -84,7 +85,7 @@ def interp(x, n, table):
         #print(x)
         mid = binpoisk(x)
         #print("mid:", mid)
-        left = max(0, mid - int((n + 1)/2))
+        left = max(0, mid - int(n/2))
         right = min(len(table[0]) - 1, left + n)
         left = max(0, right - n)
         #print(table[0])
@@ -123,8 +124,8 @@ x = float(input("x = "))
 m = int(input("Введите степень полинома для интерполяции y: "))
 y = float(input("y = "))
 
-table = generate_table(f_0, (0, 5, 1), ())
-print(table[0][1:3])
+table = generate_table(f_1, (-5, 5, 1.25), ())
+#print(table[0][1:3])
 x_l = find_list_x(table, x, n)
 
 tablex = []
@@ -138,5 +139,5 @@ for i in x_l:
 #print(tablex)
 z = interp(x, n, tablex)
 print("Результат ", z)
-print("Правильный ответ ", f_0(x, y))
+print("Правильный ответ ", f_1(x, y))
 

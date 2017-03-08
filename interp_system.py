@@ -81,7 +81,7 @@ def interp(x, n, table):
         #print(x)
         mid = binpoisk(x)
         #print("mid:", mid)
-        left = max(0, mid - int((n + 1)/2))
+        left = max(0, mid - int(n/2))
         right = min(len(table[0]) - 1, left + n)
         left = max(0, right - n)
         for i in range(left, right + 1):
