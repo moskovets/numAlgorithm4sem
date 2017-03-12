@@ -14,19 +14,34 @@ eps_const = 0.00001
 eps_otn = 0.0001
 def f_0(x):
    return sin(x)
+def f_1(x):
+   return sin(x)
 
 #[[x,x, x, x], [y,y,y,y]]
 def generate_table(f, start, end, step):
-    table = []
-    for x in range(start, end + step, step):
-        table.append(Point(x, f(x)))
-    return table
+	table = []
+	x = start
+	while x < end + step:
+		table.append(Point(x, f(x)))
+		x += step
+	return table
+
+def table_from_wiki():
+	table = []
+	table.append(Point(1, 1.0002))
+	table.append(Point(2, 1.0341))
+	table.append(Point(3, 0.6))
+	table.append(Point(4, 0.40105))
+	table.append(Point(5, 0.1))
+	table.append(Point(6, 0.2397))
+	return table
+
 
 def Get_temporary_coef(table):
 	coef = []
 	coef.append(temporary_coef(0, 0))
 	
-	N = len(table)
+	N = len(table) - 1
 	
 	for i in range(1, N + 1):
 		h_i = table[i].x - table[i-1].x
@@ -40,15 +55,15 @@ def Get_coef_slau(tmp_coef):
 	coef = []
 	coef.append(coef_slau(0, 0, 0, 0))
 	coef.append(coef_slau(0, 0, 0, 0))
-	
-	N = len(tmp_coef)
+	 
+	N = len(tmp_coef) - 1
 	
 	for i in range(2, N + 1):
 
 		a = tmp_coef[i-1].h
 		b = -2 * (tmp_coef[i-1].h + tmp_coef[i].h)
 		d = tmp_coef[i].h
-		f = -3 * (tmp_coef[i].tmp - tmp_coef[i-1].tmp)
+		f = -3 * (tmp_coef[i].dyh - tmp_coef[i-1].dyh)
 		coef.append(coef_slau(a, b, d, f))
 
 	return coef
@@ -67,7 +82,7 @@ def Get_progon_coef(slau):
 	for i in range(2, N):
 		znam = slau[i].B - slau[i].A * ksi 
 
-		eta = (slau[i].A * ets + slau[i].F) / znam
+		eta = (slau[i].A * eta + slau[i].F) / znam
 		ksi = slau[i].D / znam
 
 		progon.append(Progon_coef(eta, ksi)) #i + 1
@@ -75,35 +90,110 @@ def Get_progon_coef(slau):
 	return progon
 def Get_interp_coef(c, tmp_coef, table):
 	res = []
+	N = len(table) - 1
+	print(len(c))
+	res.append(interp_coef(0, 0, 0, 0))
+	for i in range(1, N + 1):
+		print(i)
 
+		a = table[i - 1].y
+		b = tmp_coef[i].dyh 
+		b -= tmp_coef[i].h * (c[i+1] + 2 * c[i]) / 3
+		d = (c[i+1] - c[i]) / (3 * tmp_coef[i].h)
+		res.append(interp_coef(a, b, c[i], d))
+		print(res[-1])
 	return res
 	
 
 def interp(table):
+	#print(table)
+	#print("len = ", len(table))
 	tmp_coef = Get_temporary_coef(table)
+
+	#print(tmp_coef)
+	#print("len = ", len(tmp_coef))
 
 	slau = Get_coef_slau(tmp_coef)
 
+	#print(slau)
+	#print("len = ", len(slau))
+
 	progon = Get_progon_coef(slau)
 
-	N = len(table)
+	#print(progon)
+	#print("len = ", len(progon))
+
+	N = len(table) - 1
 
 	c = []
-	c.append = (-slau[N].F - slau[N].A * progon[N].eta) / (-slau[N].B + slau[N].A * progon[N].ksi)
-	for i in range(N - 1, 0):
+	c.append(0)
+	c.append((-slau[N].F - slau[N].A * progon[N].eta) / (-slau[N].B + slau[N].A * progon[N].ksi))
+	for i in range(N - 1, 0, -1):
 		c.append(progon[i].ksi * c[-1] + progon[i].eta)
 	c.append(0)
 	c = c[::-1]
+
+	#print(c)
+	#print("len = ", len(c))
 
 	res = Get_interp_coef(c, tmp_coef, table)
 
 	return res
 
-x = float(input("x = "))
+def fi(x, table, coef_interp):
+	def binpoisk(x):
+		a = 0
+		b = len(table)
+		while(b - a > 1):	   
+			m = int((a + b) / 2)
+			if table[m].x > x:
+				b = m
+			elif table[m].x == x:
+				return m
+			else:
+				a = m
+		return a
+	i = binpoisk(x) + 1
+	dx = x - table[i-1].x
+	y = coef_interp[i].a + dx * (coef_interp[i].b + dx * (coef_interp[i].c + dx * coef_interp[i].d)) 
+	return y
+
+def print_spline(table, coef_interp):
+	def f_by_coef(coef, dx):
+		y = coef.a + dx * (coef.b + dx * (coef.c + dx * coef.d))
+		return y 
+
+	import numpy as np
+	import matplotlib.pyplot as plt
+	x = np.linspace(table[1].x, table[-1].x, 10)
+	y = []
+	i = 1
+	for xi in x:
+		if(i == len(table)):
+			break
+		y.append(f_by_coef(coef_interp[i], xi - table[i-1].x))
+		if(xi > table[i].x):
+			i += 1
+	print(x)
+	print(y)
+	##y = [f(i) for i in x]
+#y = np.sin(x)
+	plt.plot(x, y) 
+	
+	plt.axis([table[0].x, table[-1].x, min(y), max(y)])
+	#plt.grid(True)
+	#plt.legend(los = "upper left")
+	plt.show()
+	return 
 
 table = generate_table(f_0, 0, 3, 0.5)
+#table = table_from_wiki()
+coef_interp = interp(table)
 
-y = interp(x, table)
+#print_spline(table, coef_interp)
+x = float(input("x = "))
+
+y = fi(x, table, coef_interp)
 
 print("Результат ", y)
 print("Правильный ответ ", f_0(x))
