@@ -14,8 +14,10 @@ eps_const = 0.00001
 eps_otn = 0.0001
 def f_1(x):
    return sin(4*x)
-def f_0(x):
+def f_2(x):
    return sin(x)
+def f_0(x):
+   return x * x
 
 #[[x,x, x, x], [y,y,y,y]]
 def generate_table(f, start, end, step):
@@ -87,7 +89,7 @@ def Get_progon_coef(slau):
 	ksi = 0
 	progon.append(Progon_coef(eta, ksi)) #2
 
-	for i in range(2, N):
+	for i in range(2, N-1):
 		znam = slau[i].B - slau[i].A * ksi 
 
 		eta = (slau[i].A * eta + slau[i].F) / znam
@@ -127,14 +129,17 @@ def interp(table):
 
 	progon = Get_progon_coef(slau)
 
-	#print(progon)
-	#print("len = ", len(progon))
+	print(progon)
+	print("len = ", len(progon))
 
 	N = len(table) - 1
 
 	c = []
 	c.append(0)
-	c.append((-slau[N].F - slau[N].A * progon[N].eta) / (-slau[N].B + slau[N].A * progon[N].ksi))
+	if(N >= 2): ##it is magic :)
+		c.append((-slau[N].F - slau[N].A * progon[N].eta) / (-slau[N].B + slau[N].A * progon[N].ksi))
+	else: 
+		c.append(0)
 	for i in range(N, 0, -1):
 		c.append(progon[i].ksi * c[-1] + progon[i].eta)
 	#c.append(0)
@@ -150,7 +155,7 @@ def interp(table):
 def fi(x, table, coef_interp):
 	def binpoisk(x):
 		a = 0
-		b = len(table)
+		b = len(table) - 1
 		while(b - a > 1):	   
 			m = int((a + b) / 2)
 			if table[m].x > x:
@@ -181,8 +186,8 @@ def print_spline(table, coef_interp, f):
 		y.append(f_by_coef(coef_interp[i], xi - table[i-1].x))
 		if(xi > table[i].x):
 			i += 1
-	plt.plot(x, y)
-      #print(x)
+	plt.plot(x[5:], y[5:])
+        #print(x)
 	#print(y)
 	##y = [f(i) for i in x]
  	#plt.plot(x, y)
@@ -193,14 +198,14 @@ def print_spline(table, coef_interp, f):
 	#plt.plot(x1, y1, color = 'red')
 	x2 = np.linspace(table[0].x, table[-1].x, 100)
 	y2 = [f(i) for i in x2]
-	#plt.plot(x2, y2, color = 'green')
+	plt.plot(x2, y2, color = 'green')
 
 	plt.axis([table[0].x - 1, table[-1].x + 1, min(y) - 1, max(y) + 1])
 
 	plt.show()
 	return 
 
-table = generate_table(f_0, -5, 6, 1)
+table = generate_table(f_0, -5, -4, 1)
 #table = table_from_wiki()
 coef_interp = interp(table)
 #print_spline(table, coef_interp, f_0)
