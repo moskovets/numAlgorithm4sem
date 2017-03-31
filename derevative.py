@@ -25,7 +25,6 @@ def generate_table(start, end, step):
 #1. односторонние разности
 def diff_one_side(table):
 	n = table.shape[0]
-	print(n)
 	a = []
 	for i in range(0, n - 1):
 		dx = table[i+1][0] - table[i][0]
@@ -36,12 +35,26 @@ def diff_one_side(table):
 	a.append(None)
 	return np.array(a)
 
+#2. центральная разность
+def diff_central(table):
+	n = table.shape[0]
+	a = [None]
+	for i in range(1, n - 1):
+		dx = table[i+1][0] - table[i-1][0]
+		if dx == 0:
+			a.append(NaN)
+		else:
+			a.append((table[i+1][1] - table[i-1][1]) / dx) 
+	a.append(None)
+	## нужно ли добавлять производные на границах? 
+	return np.array(a)
 
 table = generate_table(-5, 5, 1)
 
 one_side = diff_one_side(table)
+central = diff_central(table)
 
-res = np.column_stack((table, one_side))
+res = np.column_stack((table, one_side, central))
 
-s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности'])
+s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности'])
 print(s)
