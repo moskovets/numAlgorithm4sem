@@ -49,12 +49,31 @@ def diff_central(table):
 	## нужно ли добавлять производные на границах? 
 	return np.array(a)
 
+#3. повышенная точность в граничных точках
+def border_derevative(table):
+	n = table.shape[0]
+	a = [None for i in range(0, n)]
+
+	dx0 = table[2][0] - table[0][0]
+	dxn = table[n-1][0] - table[n-3][0]
+
+
+	if dx0 != 0:
+		a[0] = (-3 * table[0][1] + 4 * table[1][1] - table[2][1]) / dx0
+
+	if dxn != 0:
+		a[n-1] = (3 * table[n-1][1] - 4 * table[n-2][1] + table[n-3][1]) / dxn
+
+	return np.array(a)
+
+
 table = generate_table(-5, 5, 1)
 
 one_side = diff_one_side(table)
 central = diff_central(table)
+border = border_derevative(table)
 
-res = np.column_stack((table, one_side, central))
+res = np.column_stack((table, one_side, central, border))
 
-s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности'])
+s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности', 'на границах'])
 print(s)
