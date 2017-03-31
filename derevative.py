@@ -22,9 +22,26 @@ def generate_table(start, end, step):
         table.append([x, f(x)])
     return np.array(table)
 
+#1. односторонние разности
+def diff_one_side(table):
+	n = table.shape[0]
+	print(n)
+	a = []
+	for i in range(0, n - 1):
+		dx = table[i+1][0] - table[i][0]
+		if dx == 0:
+			a.append(NaN)
+		else:
+			a.append((table[i+1][1] - table[i][1]) / dx)
+	a.append(None)
+	return np.array(a)
+
 
 table = generate_table(-5, 5, 1)
 
-s = pd.DataFrame(table, columns=['x', 'f(x)'])
+one_side = diff_one_side(table)
 
+res = np.column_stack((table, one_side))
+
+s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности'])
 print(s)
