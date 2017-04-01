@@ -29,7 +29,7 @@ def diff_one_side(table):
 	for i in range(0, n - 1):
 		dx = table[i+1][0] - table[i][0]
 		if dx == 0:
-			a.append(NaN)
+			a.append(None)
 		else:
 			a.append((table[i+1][1] - table[i][1]) / dx)
 	a.append(None)
@@ -42,7 +42,7 @@ def diff_central(table):
 	for i in range(1, n - 1):
 		dx = table[i+1][0] - table[i-1][0]
 		if dx == 0:
-			a.append(NaN)
+			a.append(None)
 		else:
 			a.append((table[i+1][1] - table[i-1][1]) / dx) 
 	a.append(None)
