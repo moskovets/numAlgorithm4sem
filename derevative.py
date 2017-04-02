@@ -3,7 +3,7 @@
 1. односторонние разности
 2. центральная разность
 3. повышенная точность в граничных точках
-4. фурмулы Рунге
+4. формулы Рунге
 5. Выравнивающие переменные (для экспоненты)
 Задается х, для которого необходимо найти производную
 """
@@ -66,6 +66,25 @@ def border_derevative(table):
 
 	return np.array(a)
 
+#4. формулы Рунге
+def Runge(table):
+	n = table.shape[0]
+
+	h = table[2][0] - table[0][0]
+	h2 = h * 2
+	a = [None, None]
+
+	for i in range(2, n - 2):
+		ksih  = (table[i+1][1] - table[i-1][1]) / h
+		ksi2h = (table[i+2][1] - table[i-2][1]) / h2
+
+		a.append(ksih + (ksih - ksi2h) / 3)
+
+	a.append(None)
+	a.append(None)
+
+	return np.array(a)
+
 #5. Выравнивающие переменные (для экспоненты)
 def ksi(x):
 	return x
@@ -87,10 +106,10 @@ table = generate_table(-5, 5, 1)
 one_side = diff_one_side(table)
 central = diff_central(table)
 border = border_derevative(table)
-
+runge = Runge(table)
 leveling = leveling_variables(table)
 
-res = np.column_stack((table, one_side, central, border, leveling))
+res = np.column_stack((table, one_side, central, border, runge, leveling))
 
-s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности', 'на границах', 'выр.перем.'])
+s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности', 'на границах', 'Рунге', 'выр.перем.'])
 print(s)
