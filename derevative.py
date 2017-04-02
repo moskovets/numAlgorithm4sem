@@ -4,14 +4,14 @@
 2. центральная разность
 3. повышенная точность в граничных точках
 4. фурмулы Рунге
-5. Выравнивающие параметры (для экспоненты)
+5. Выравнивающие переменные (для экспоненты)
 Задается х, для которого необходимо найти производную
 """
 
 import numpy as np
 import pandas as pd
 
-from math import *
+from math import exp, log
 
 def f(x):
    return exp(x)
@@ -66,6 +66,21 @@ def border_derevative(table):
 
 	return np.array(a)
 
+#5. Выравнивающие переменные (для экспоненты)
+def ksi(x):
+	return x
+def eta(y):
+	return log(y)
+def leveling_variables(table):
+	new_table = np.array([[ksi(i[0]), eta(i[1])] for i in table])
+
+	a = diff_one_side(new_table) #eta'ksi
+	a[-1] = 0
+	#print(a)
+	#print(table[:,1])
+	a = a * table[:,1]
+	a[-1] = None
+	return a
 
 table = generate_table(-5, 5, 1)
 
@@ -73,7 +88,9 @@ one_side = diff_one_side(table)
 central = diff_central(table)
 border = border_derevative(table)
 
-res = np.column_stack((table, one_side, central, border))
+leveling = leveling_variables(table)
 
-s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности', 'на границах'])
+res = np.column_stack((table, one_side, central, border, leveling))
+
+s = pd.DataFrame(res, columns=['x', 'f(x)', 'одностор.разности', 'центр.разности', 'на границах', 'выр.перем.'])
 print(s)
