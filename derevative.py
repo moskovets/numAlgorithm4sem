@@ -18,9 +18,21 @@ def f(x):
 
 def generate_table(start, end, step):
     table = []
-    for x in range(start, end + step, step):
+    x = start
+    while(x < end + step):
         table.append([x, f(x)])
+        x += step
     return np.array(table)
+
+def get_table(filename):
+    infile = open(filename, 'r')
+    data = []
+    for line in infile:
+        if line:
+            a, b = map(float, line.split())
+            data.append([a, b])
+    infile.close()
+    return np.array(data)    
 
 #1. односторонние разности
 def diff_one_side(table):
@@ -65,9 +77,8 @@ def border_derevative(table):
 		a[n-1] = (3 * table[n-1][1] - 4 * table[n-2][1] + table[n-3][1]) / dxn
 
 	return np.array(a)
-
-#4. формулы Рунге
-def Runge(table):
+# Рунге по центральным разностям
+def Runge_central(table):
 	n = table.shape[0]
 
 	h = table[2][0] - table[0][0]
@@ -82,6 +93,29 @@ def Runge(table):
 
 	a.append(None)
 	a.append(None)
+
+	return np.array(a)
+
+#4. формулы Рунге (по односторонним разностям)
+def Runge(table):
+	n = table.shape[0]
+
+	h = table[1][0] - table[0][0]
+	h2 = h * 2
+	a = []
+	p = 1.
+
+	for i in range(0, n - 2):
+		ksih  = (table[i+1][1] - table[i][1]) / h
+		ksi2h = (table[i+2][1] - table[i][1]) / h2
+
+		a.append(ksih + (ksih - ksi2h) / (2**p - 1))
+
+	for i in range(n - 2, n):
+		ksih  = (table[i][1] - table[i-1][1]) / h
+		ksi2h = (table[i][1] - table[i-2][1]) / h2
+
+		a.append(ksih + (ksih - ksi2h) / (2**p - 1))
 
 	return np.array(a)
 
@@ -101,7 +135,9 @@ def leveling_variables(table):
 	a[-1] = None
 	return a
 
-table = generate_table(-5, 5, 1)
+table = generate_table(0, 3, 0.2)
+
+#table = get_table("der_table.txt") #для таблицы из файла
 
 one_side = diff_one_side(table)
 central = diff_central(table)
