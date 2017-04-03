@@ -12,10 +12,26 @@ def generate_table(start, end, step):
     table = []
     table.append([])
     table.append([])   
-    for x in range(start, end + step, step):
+    x = start
+    while(x < end + step):
+        #print(x)
         table[0].append(x)
         table[1].append(f(x))
+        x += step
     return table
+
+def get_table(filename):
+    infile = open(filename, 'r')
+    data = []
+    data.append([])
+    data.append([])   
+    for line in infile:
+        if line:
+            a, b = map(float, line.split())
+            data[0].append(a)
+            data[1].append(b)
+    infile.close()
+    return data  
 
 def getCoefPolynomByConfiguration(conf, n):
     newconf = []
@@ -25,18 +41,37 @@ def getCoefPolynomByConfiguration(conf, n):
         newconf.append(tmp)
     return newconf
 
+def some_combinations(iterable, r):
+    # combinations('ABCD', 2) --> AB AC AD BC BD CD
+    # combinations(range(4), 3) --> 012 013 023 123
+    pool = tuple(iterable)
+    n = len(pool)
+    if r > n:
+        return
+    indices = list(range(r))
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != i + n - r:
+                break
+        else:
+            return
+        indices[i] += 1
+        for j in range(i+1, r):
+            indices[j] = indices[j-1] + 1
+        yield tuple(pool[i] for i in indices)
+
 def GetCombineMult(arr, m):
 	import itertools as it
 	res = 0
-	pair = it.combinations(arr, m)
+#	pair = it.combinations(arr, m) # стандартная функция поиска всех нужных сочетаний
+	pair = some_combinations(arr, m)
 	for i in pair:
 		flag = False
 		tmp = 1
 		for j in i:
-			print(j)
 			tmp *= j
 		res += tmp
-	print(res)
 	return res
 
 def deverative(x, n, table):
@@ -45,22 +80,19 @@ def deverative(x, n, table):
         b = len(table[0])
         while(b - a > 1):       
             m = int((a + b) / 2)
-            #print(a, b, m, table[0][m])
             if table[0][m] > x:
                 b = m
             elif table[0][m] == x:
                 return m
             else:
                 a = m
-            #print("end\n")
         return a
+
     def findconf():
         conf = []
         conf.append([])
         conf.append([])
-        #print(x)
         mid = binpoisk(x)
-        #print("mid:", mid)
         left = max(0, mid - int(n/2))
         right = min(len(table[0]) - 1, left + n)
         left = max(0, right - n)
@@ -70,22 +102,16 @@ def deverative(x, n, table):
         return conf
     
     conf = findconf()
-    print("conf: ", conf)
 
     y = 0
 
     for i in range(1, n + 1):
         coef = getCoefPolynomByConfiguration(conf, i)
-        #print(coef)
         arr = []
-        #print(conf)
         for j in range(0, i):
             t = x - conf[0][j]
             arr.append(t)
-        #print(arr)    
         tmp = GetCombineMult(arr, i - 1)
-
-        #print("\n", coef[0])
 
         y += tmp * coef[0]
         j = 0
@@ -96,13 +122,16 @@ def deverative(x, n, table):
     return y
 
 n = int(input("Введите количество узлов: "))
+if n <= 0:
+	print("error")
+else:	
+	x = float(input("x = "))
 
-x = float(input("x = "))
+	table = generate_table(0, 5, 0.5)
+	#table = get_table("der_table.txt") # если таблицу нужно из файла загрузить
 
-table = generate_table(0, 5, 1)
+	y = deverative(x, n - 1, table)
 
-y = deverative(x, n - 1, table)
-
-print("Результат              ", y)
-print("Правильный ответ       ", f(x))
-print("Абсолютная погрешность ", abs(y - f(x)))
+	print("Результат              ", y)
+	print("Правильный ответ       ", f(x)) # актуально только для экспоненты
+	print("Абсолютная погрешность ", abs(y - f(x)))
