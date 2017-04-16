@@ -55,6 +55,7 @@ def get_coef_Gauss_formula(x, dp, n):
 
     a = [getA(i) for i in range(0, n)]
     return a
+
 # работает хуже чем формула
 def get_coef_Gauss(x, n):
     z = []
@@ -72,12 +73,13 @@ def get_coef_Gauss(x, n):
             matr[i].append(matr[i-1][j] * x[j])
     res = np.linalg.solve(matr, z) ########
     return res
+    
 def F(x, alpha, t, weights):
 	res = 0
 	n = len(t)
 	for i in range(0, n):
-		res += weights[i] * f(x / 2 * t[i]) ## modife if lower limit is not 0
-	res *= x / 2
+		res += weights[i] * f((x / 2) * (t[i] + 1)) ## modife if lower limit is not 0
+	res *= (x / 2)
 	return res - alpha
 
 
@@ -125,9 +127,11 @@ print(b)
 
 res = find_limit_of_integration(0, 5, alpha, x, b)
 print("x = ", res)
-
+print(F(res, alpha, x, b))
+"""
 import matplotlib.pyplot as plt
 tx = np.linspace(0, 20, 100)
 y = [F(i, alpha, x, b) for i in tx]
 plt.plot(tx, y)
 plt.show()
+"""
