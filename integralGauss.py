@@ -72,11 +72,40 @@ def get_coef_Gauss(x, n):
             matr[i].append(matr[i-1][j] * x[j])
     res = np.linalg.solve(matr, z) ########
     return res
+def F(x, alpha, t, weights):
+	res = 0
+	n = len(t)
+	for i in range(0, n):
+		res += weights[i] * f(x / 2 * t[i]) ## modife if lower limit is not 0
+	res *= x / 2
+	return res - alpha
+
+
 #a, b - значения для поиска (а = 0) 
-def find_limit_of_integration(a, b, t):
-	return b
+def find_limit_of_integration(a, b, alpha, t, weights):
+	print(a, F(a, alpha, t, weights))
+	print(alpha)
+	if(F(a, alpha, t, weights) > 0):
+		a, b = b, a
+	if(F(a, alpha, t, weights) > 0):
+		print("Увеличить диапазон поиска!")
+		return
+	tmp = 0
+	j = 0
+#	while True:
+	while j < 10:
+		#j += 1
+		tmp = (a + b) / 2
+		Ftmp = F(tmp, alpha, t, weights)
+		print(tmp, Ftmp)
 
-
+		if abs((b - tmp) / b) < eps:
+			break
+		if Ftmp < 0:
+			a = tmp
+		else:
+			b = tmp
+	return tmp
 
 n = int(input("n = "))
 alpha = float(input("a = "))
@@ -94,3 +123,11 @@ b = get_coef_Gauss(x, n)
 print(b)
 
 
+res = find_limit_of_integration(0, 5, alpha, x, b)
+print("x = ", res)
+
+import matplotlib.pyplot as plt
+tx = np.linspace(0, 20, 100)
+y = [F(i, alpha, x, b) for i in tx]
+plt.plot(tx, y)
+plt.show()
